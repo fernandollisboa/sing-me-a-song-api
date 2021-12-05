@@ -32,3 +32,16 @@ export async function upvote({ id }) {
 
   return updatedRecommendation; // TO-DO ver se precisa disso msm pro teste
 }
+
+export async function downvote({ id }) {
+  if (!(await recommendationRepository.selectById({ id }))) {
+    throw new RecommendationError(`Song with id = ${id} not found`, 'NOT_FOUND');
+  }
+
+  const updatedRecommendation = await recommendationRepository.decreaseScore({ id });
+  if (!updatedRecommendation) {
+    throw new RecommendationError('Database Error', 'INTERNAL_SERVER_ERROR');
+  }
+
+  return updatedRecommendation; // TO-DO ver se precisa disso msm pro teste
+}

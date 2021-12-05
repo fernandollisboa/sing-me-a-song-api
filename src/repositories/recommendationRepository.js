@@ -46,3 +46,12 @@ export async function increaseScore({ id }) {
 
   return query.rows[0];
 }
+
+export async function decreaseScore({ id }) {
+  const query = await connection.query(
+    'UPDATE recommendations SET score = score - 1 WHERE id = $1 RETURNING *;',
+    [id],
+  );
+
+  return query.rows[0];
+}

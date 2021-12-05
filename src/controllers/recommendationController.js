@@ -51,3 +51,25 @@ export async function upvote(req, res, next) {
     next(err);
   }
 }
+
+export async function downvote(req, res, next) {
+  try {
+    const joiValidation = idSchema.validate(req.params);
+    if (joiValidation.error) {
+      throw new RecommendationError(joiValidation.error.message);
+    }
+
+    const { id } = req.params;
+
+    const updatedRecommendation = await recommendationService.downvote({ id });
+    return res.status(statusCode.OK).send(updatedRecommendation);
+  } catch (err) {
+    if (err instanceof RecommendationError) {
+      console.error(err.message);
+      console.error(err.stack);
+      return res.status(err.statusCode).send(err.message);
+    }
+
+    next(err);
+  }
+}
