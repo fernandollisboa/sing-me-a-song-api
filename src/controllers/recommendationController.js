@@ -21,7 +21,6 @@ export async function postRecommendation(req, res, next) {
     return res.sendStatus(statusCode.CREATED);
   } catch (err) {
     if (err instanceof RecommendationError) {
-      console.error(err.message);
       console.error(err.stack);
       return res.status(err.statusCode).send(err.message);
     }
@@ -43,7 +42,6 @@ export async function upvote(req, res, next) {
     return res.status(statusCode.OK).send(updatedRecommendation);
   } catch (err) {
     if (err instanceof RecommendationError) {
-      console.error(err.message);
       console.error(err.stack);
       return res.status(err.statusCode).send(err.message);
     }
@@ -65,11 +63,27 @@ export async function downvote(req, res, next) {
     return res.status(statusCode.OK).send(updatedRecommendation);
   } catch (err) {
     if (err instanceof RecommendationError) {
-      console.error(err.message);
       console.error(err.stack);
       return res.status(err.statusCode).send(err.message);
     }
 
+    next(err);
+  }
+}
+
+export async function getRandom(req, res, next) {
+  try {
+    const randomRecommendation = await recommendationService.getRandom();
+
+    const { id, name, youtubeLink, score } = randomRecommendation.chosenSong;
+    const { genres } = randomRecommendation;
+    const body = { id, name, genres, youtubeLink, score };
+    return res.status(200).send(body);
+  } catch (err) {
+    if (err instanceof RecommendationError) {
+      console.error(err.stack);
+      return res.status(err.statusCode).send(err.message);
+    }
     next(err);
   }
 }

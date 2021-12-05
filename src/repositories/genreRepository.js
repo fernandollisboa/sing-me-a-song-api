@@ -19,3 +19,16 @@ export async function selectById({ id }) {
 
   return query.rows[0];
 }
+
+export async function selectAllByRecommendationId({ recommendationId }) {
+  const query = await connection.query(
+    `SELECT id,name
+     FROM genres g 
+        INNER JOIN recommendation_genres recgen
+        ON recgen.genre_id = g.id
+     WHERE recgen.recommendation_id = $1;`,
+    [recommendationId],
+  );
+
+  return query.rows;
+}

@@ -55,3 +55,28 @@ export async function decreaseScore({ id }) {
 
   return query.rows[0];
 }
+
+export async function selectAll() {
+  const query = await connection.query('SELECT * FROM recommendations;');
+  return query.rows;
+}
+
+export async function selectWhereScoreGreaterThanTen() {
+  const query = await connection.query(`SELECT id, 
+                                               name, 
+                                               youtube_link as "youtubeLink",
+                                               score
+                                        FROM recommendations
+                                        WHERE score > 10;`);
+  return query.rows;
+}
+
+export async function selectWhereScoreBetweenMinusFiveAndTen() {
+  const query = await connection.query(`SELECT id, 
+                                               name, 
+                                               youtube_link as "youtubeLink",
+                                               score
+                                        FROM recommendations
+                                        WHERE score BETWEEN -5 AND 10;`);
+  return query.rows;
+}
