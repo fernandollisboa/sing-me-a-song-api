@@ -8,7 +8,6 @@ export async function insert({ name, youtubeLink, genresIds }) {
     [name, youtubeLink],
   );
 
-  // TO-DO ver se funciona direito essa parada dos awaits
   await Promise.all(
     genresIds.map(async (genreId) =>
       connection.query(
@@ -31,5 +30,19 @@ export async function selectByYoutubeLink({ youtubeLink }) {
   const query = await connection.query('SELECT * FROM recommendations WHERE youtube_link = $1;', [
     youtubeLink,
   ]);
+  return query.rows[0];
+}
+
+export async function selectById({ id }) {
+  const query = await connection.query('SELECT * FROM recommendations WHERE id = $1;', [id]);
+  return query.rows[0];
+}
+
+export async function increaseScore({ id }) {
+  const query = await connection.query(
+    'UPDATE recommendations SET score = score + 1 WHERE id = $1 RETURNING *;',
+    [id],
+  );
+
   return query.rows[0];
 }

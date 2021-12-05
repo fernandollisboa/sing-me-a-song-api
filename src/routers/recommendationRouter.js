@@ -1,5 +1,9 @@
 import { Router } from 'express';
+import * as recommendationController from '../controllers/recommendationController.js';
 
-const routes = Router();
+const router = Router();
 
-routes.post('/recommendations', '');
+router.post('/recommendations', recommendationController.postRecommendation);
+router.post('/recommendations/:id/upvote', recommendationController.upvote);
+
+export default router;
