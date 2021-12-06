@@ -21,11 +21,19 @@ export async function postRecommendation(req, res, next) {
       throw new RecommendationError('Name cannot contain only white space');
     }
 
-    await recommendationService.createRecommendation({ name, youtubeLink, genresIds });
+    const newRecommendation = await recommendationService.createRecommendation({
+      name,
+      youtubeLink,
+      genresIds,
+    });
 
-    return res.sendStatus(statusCode.CREATED);
+    return res.status(statusCode.CREATED).send(newRecommendation);
   } catch (err) {
     if (err instanceof RecommendationError) {
+      console.error(err.stack);
+      return res.status(err.statusCode).send(err.message);
+    }
+    if (err instanceof GenreError) {
       console.error(err.stack);
       return res.status(err.statusCode).send(err.message);
     }

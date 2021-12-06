@@ -21,21 +21,22 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: teste; Type: TABLE; Schema: public; Owner: postgres
+-- Name: genres; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.teste (
-    id integer NOT NULL
+CREATE TABLE public.genres (
+    id integer NOT NULL,
+    name text NOT NULL
 );
 
 
-ALTER TABLE public.teste OWNER TO postgres;
+ALTER TABLE public.genres OWNER TO postgres;
 
 --
--- Name: teste_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: genres_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.teste_id_seq
+CREATE SEQUENCE public.genres_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -44,45 +45,208 @@ CREATE SEQUENCE public.teste_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.teste_id_seq OWNER TO postgres;
+ALTER TABLE public.genres_id_seq OWNER TO postgres;
 
 --
--- Name: teste_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: genres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.teste_id_seq OWNED BY public.teste.id;
-
-
---
--- Name: teste id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.teste ALTER COLUMN id SET DEFAULT nextval('public.teste_id_seq'::regclass);
+ALTER SEQUENCE public.genres_id_seq OWNED BY public.genres.id;
 
 
 --
--- Data for Name: teste; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Name: genres_name_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-COPY public.teste (id) FROM stdin;
+CREATE SEQUENCE public.genres_name_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.genres_name_seq OWNER TO postgres;
+
+--
+-- Name: genres_name_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.genres_name_seq OWNED BY public.genres.name;
+
+
+--
+-- Name: recommendation_genres; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.recommendation_genres (
+    recommendation_id bigint NOT NULL,
+    genre_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.recommendation_genres OWNER TO postgres;
+
+--
+-- Name: recommendations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.recommendations (
+    id integer NOT NULL,
+    name text NOT NULL,
+    youtube_link text NOT NULL,
+    score integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public.recommendations OWNER TO postgres;
+
+--
+-- Name: recommendations_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.recommendations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.recommendations_id_seq OWNER TO postgres;
+
+--
+-- Name: recommendations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.recommendations_id_seq OWNED BY public.recommendations.id;
+
+
+--
+-- Name: genres id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.genres ALTER COLUMN id SET DEFAULT nextval('public.genres_id_seq'::regclass);
+
+
+--
+-- Name: genres name; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.genres ALTER COLUMN name SET DEFAULT nextval('public.genres_name_seq'::regclass);
+
+
+--
+-- Name: recommendations id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.recommendations ALTER COLUMN id SET DEFAULT nextval('public.recommendations_id_seq'::regclass);
+
+
+--
+-- Data for Name: genres; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.genres (id, name) FROM stdin;
 \.
 
 
 --
--- Name: teste_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Data for Name: recommendation_genres; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.teste_id_seq', 2, true);
+COPY public.recommendation_genres (recommendation_id, genre_id) FROM stdin;
+\.
 
 
 --
--- Name: teste teste_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Data for Name: recommendations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.teste
-    ADD CONSTRAINT teste_pkey PRIMARY KEY (id);
+COPY public.recommendations (id, name, youtube_link, score) FROM stdin;
+\.
+
+
+--
+-- Name: genres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.genres_id_seq', 12, true);
+
+
+--
+-- Name: genres_name_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.genres_name_seq', 1, false);
+
+
+--
+-- Name: recommendations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.recommendations_id_seq', 56, true);
+
+
+--
+-- Name: genres genres_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.genres
+    ADD CONSTRAINT genres_name_key UNIQUE (name);
+
+
+--
+-- Name: genres genres_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.genres
+    ADD CONSTRAINT genres_pk PRIMARY KEY (id);
+
+
+--
+-- Name: recommendations recommendations_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.recommendations
+    ADD CONSTRAINT recommendations_name_key UNIQUE (name);
+
+
+--
+-- Name: recommendations recommendations_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.recommendations
+    ADD CONSTRAINT recommendations_pk PRIMARY KEY (id);
+
+
+--
+-- Name: recommendations recommendations_youtube_link_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.recommendations
+    ADD CONSTRAINT recommendations_youtube_link_key UNIQUE (youtube_link);
+
+
+--
+-- Name: recommendation_genres recommendation_genres_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.recommendation_genres
+    ADD CONSTRAINT recommendation_genres_fk0 FOREIGN KEY (recommendation_id) REFERENCES public.recommendations(id);
+
+
+--
+-- Name: recommendation_genres recommendation_genres_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.recommendation_genres
+    ADD CONSTRAINT recommendation_genres_fk1 FOREIGN KEY (genre_id) REFERENCES public.genres(id);
 
 
 --
 -- PostgreSQL database dump complete
 --
+

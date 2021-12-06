@@ -12,7 +12,7 @@ describe('create recommendation', () => {
     .spyOn(recommendationRepository, 'insert')
     .mockImplementation(() => generateRecommendationDbResponse());
 
-  jest.spyOn(genreRepository, 'selectById').mockImplementation(() => {});
+  jest.spyOn(genreRepository, 'selectById').mockImplementation(() => ({ id: 1, name: 'rock' }));
 
   it('should return with the new recommendation when its succesfully created', async () => {
     jest.spyOn(recommendationRepository, 'selectByName').mockImplementationOnce(() => {});

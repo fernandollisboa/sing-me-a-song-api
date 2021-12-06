@@ -38,11 +38,13 @@ describe('get random recommendation', () => {
     jest
       .spyOn(genreService, 'getRecommendationGenres')
       .mockImplementation(() => [{ id: 1, name: 'rock' }]);
+
     const results = [];
     for (let i = 0; i < 10; i += 1) {
       const currentResult = await recommendationService.getRandom();
       results.push(currentResult.chosenSong.score);
     }
+    await recommendationService.getRandom();
 
     results.sort();
     expect(results).toEqual([10, 10, 10, 11, 11, 11, 11, 11, 11, 11]);
@@ -58,12 +60,10 @@ describe('get random recommendation', () => {
     ]);
 
     const currentResult = await recommendationService.getRandom();
-    console.log(currentResult);
     const { id, name, youtubeLink, score } = currentResult.chosenSong;
     const { genres } = currentResult;
     const body = { id, name, genres: [genres], youtubeLink, score };
 
-    console.log(body);
     expect(body).toEqual({
       id: expect.any(Number),
       name: expect.any(String),
