@@ -1,8 +1,13 @@
 /* eslint-disable consistent-return */
-import { recommendationSchema, idSchema } from '../validations/recommendationValidation.js';
+import {
+  recommendationSchema,
+  idSchema,
+  topAmountSchema,
+} from '../validations/recommendationValidation.js';
 import statusCode from '../enum/httpStatus.js';
 import RecommendationError from '../errors/RecommendationError.js';
 import * as recommendationService from '../services/recommendationService.js';
+import GenreError from '../errors/GenreError.js';
 
 export async function postRecommendation(req, res, next) {
   try {
@@ -78,12 +83,37 @@ export async function getRandom(req, res, next) {
     const { id, name, youtubeLink, score } = randomRecommendation.chosenSong;
     const { genres } = randomRecommendation;
     const body = { id, name, genres, youtubeLink, score };
-    return res.status(200).send(body);
+
+    return res.status(statusCode.OK).send(body);
   } catch (err) {
     if (err instanceof RecommendationError) {
       console.error(err.stack);
       return res.status(err.statusCode).send(err.message);
     }
+    if (err instanceof GenreError) {
+      console.error(err.stack);
+      return res.status(err.statusCode).send(err.message);
+    }
     next(err);
+  }
+}
+
+export async function getTopAmout(req, res, next) {
+  try {
+    const joiValidation = topAmountSchema.validate(req.params);
+    if (joiValidation.error) {
+      throw new RecommendationError(joiValidation.error.message);
+    }
+
+    const { amount } = req.params;
+
+    const recommendations = await recommendationService.getTopAmount({ amount });
+    return res.send(recommendations).status(statusCode.OK);
+  } catch (err) {
+    if (err instanceof RecommendationError) {
+      console.error(err.stack);
+      return res.status(err.statusCode).send(err.message);
+    }
+    next();
   }
 }

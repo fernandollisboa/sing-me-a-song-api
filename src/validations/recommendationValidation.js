@@ -12,4 +12,6 @@ const recommendationSchema = Joi.object().keys({
 
 const idSchema = Joi.object({ id: Joi.number().integer().required() });
 
-export { recommendationSchema, idSchema };
+const topAmountSchema = Joi.object({ amount: Joi.number().integer().min(1).required(1) });
+
+export { recommendationSchema, idSchema, topAmountSchema };

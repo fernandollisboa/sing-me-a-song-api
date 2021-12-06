@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import RecommendationError from '../errors/RecommendationError.js';
 import * as recommendationRepository from '../repositories/recommendationRepository.js';
 import * as genreService from './genreService.js';
@@ -6,17 +7,19 @@ import pseudoRandomOptionsArr from '../utils/pseudoRandomOptionsArr.js';
 export async function createRecommendation({ name, youtubeLink, genresIds }) {
   // TO-DO FAZER VERIFICACAO DE GENEROS a partir de genreservice ((?))
 
+  console.log('aa');
   if (await recommendationRepository.selectByName({ name })) {
     throw new RecommendationError(`"${name}" already exists`, 'CONFLICT');
   }
 
   if (await recommendationRepository.selectByYoutubeLink({ youtubeLink })) {
+    console.log('??');
     throw new RecommendationError('The Youtube link already exists', 'CONFLICT');
   }
 
   const newRecommendation = await recommendationRepository.insert({ name, youtubeLink, genresIds });
   if (!newRecommendation) {
-    throw new RecommendationError('Database Error', 'INTERNAL_SERVER_ERROR');
+    throw new RecommendationError('Recommendation Database Error', 'INTERNAL_SERVER_ERROR');
   }
 
   return newRecommendation;
@@ -24,6 +27,7 @@ export async function createRecommendation({ name, youtubeLink, genresIds }) {
 
 export async function upvote({ id }) {
   if (!(await recommendationRepository.selectById({ id }))) {
+    console.log('/');
     throw new RecommendationError(`Song with id = ${id} not found`, 'NOT_FOUND');
   }
 
@@ -50,8 +54,6 @@ export async function downvote({ id }) {
 
 async function fetchWeightedRandomRecommendation() {
   const songScores = pseudoRandomOptionsArr.pop();
-  console.log(songScores);
-  console.log('pseudolength: ', pseudoRandomOptionsArr.data.length);
 
   let recommendationsArr;
   if (songScores === 'greaterThanTen') {
@@ -61,7 +63,6 @@ async function fetchWeightedRandomRecommendation() {
   }
 
   if (!recommendationsArr.length) {
-    console.log(recommendationsArr);
     throw new RecommendationError('Recommendation Database Error', 'INTERNAL_SERVER_ERROR');
   }
 
@@ -86,11 +87,34 @@ export async function getRandom() {
     chosenSong = await fetchWeightedRandomRecommendation();
   } else {
     const recommendationsArr = await recommendationRepository.selectAll();
+    if (!recommendationsArr.length) {
+      throw new RecommendationError('Recommendation Database Error', 'INTERNAL_SERVER_ERROR');
+    }
+
     chosenSong = recommendationsArr[Math.floor(Math.random() * recommendationsArr.length)];
   }
 
-  console.log(chosenSong);
   const genres = await genreService.getRecommendationGenres({ recommendationId: chosenSong.id });
 
   return { chosenSong, genres };
+}
+
+export async function getTopAmount({ amount }) {
+  const recommendations = await recommendationRepository.selectOrderByScoreLimitDesc({
+    limit: amount,
+  });
+
+  if (!recommendations.length) {
+    throw new RecommendationError('There are no songs registered yet', 'NOT_FOUND');
+  }
+
+  await Promise.all(
+    recommendations.map(async (r) => {
+      console.log(r.id);
+      r.genres = await genreService.getRecommendationGenres({ recommendationId: r.id });
+    }),
+  );
+  console.log('rec', recommendations.length);
+
+  return recommendations;
 }

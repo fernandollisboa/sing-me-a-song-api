@@ -80,3 +80,16 @@ export async function selectWhereScoreBetweenMinusFiveAndTen() {
                                         WHERE score BETWEEN -5 AND 10;`);
   return query.rows;
 }
+
+export async function selectOrderByScoreLimitDesc({ limit }) {
+  const query = await connection.query(
+    `SELECT  id, 
+            name, 
+            youtube_link as "youtubeLink",
+            score 
+    FROM recommendations ORDER BY score DESC LIMIT $1;`,
+    [limit],
+  );
+
+  return query.rows;
+}
